@@ -1,1 +1,3 @@
-
+wget https://raw.githubusercontent.com/UZ-SLAMLab/ORB_SLAM3/master/Vocabulary/ORBvoc.txt.tar.gz
+tar -xf ORBvoc.txt.tar.gz
+rm ORBvoc.txt.tar.gz
