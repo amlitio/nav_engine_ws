@@ -66,7 +66,10 @@ def request_navigation(req: NavigateRequest):
 
 def main():
     print("🚀 Starting NavEngine API on port 8000...")
+    # Import uvicorn inside main to avoid global dependency issues
+    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
 if __name__ == '__main__':
     main()
+
