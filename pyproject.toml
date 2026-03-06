@@ -1,0 +1,5 @@
+[project.scripts]
+nav-api = "nav_engine.navigation_api:main"
+
+#[tool.poetry.scripts]
+#nav-api = "nav_engine.navigation_api:main"
