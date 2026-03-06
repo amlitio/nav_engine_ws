@@ -1,0 +1,34 @@
+# SOTA NVIDIA Jetson Base Image (L4T R35.x + ROS 2 Humble)
+FROM dustynv/ros:humble-pytorch-l4t-r35.2.1
+
+# Prevent interactive prompts during apt-get
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install core robotics and SLAM dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    wget \
+    libglew-dev \
+    libopencv-dev \
+    ros-humble-cv-bridge \
+    ros-humble-image-transport \
+    ros-humble-sensor-msgs \
+    ros-humble-nav-msgs \
+    ros-humble-ros-gz \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies for the NavEngine API and graph routing
+COPY requirements.txt /tmp/
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt \
+    fastapi uvicorn networkx numpy scipy
+
+# Set up the workspace directory
+WORKDIR /nav_engine_ws
+
+# Add ROS 2 sourcing to the bash profile
+RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+RUN echo "if [ -f /nav_engine_ws/install/setup.bash ]; then source /nav_engine_ws/install/setup.bash; fi" >> ~/.bashrc
+
+CMD ["/bin/bash"]
