@@ -1,1 +1,80 @@
+%YAML:1.0
 
+#--------------------------------------------------------------------------------------------
+# Camera Parameters. Adjust them if you change the Gazebo sensor FOV or resolution.
+#--------------------------------------------------------------------------------------------
+Camera.type: "PinHole"
+
+# Camera calibration parameters (Simulated 640x480 with ~60 deg FOV)
+Camera.fx: 381.36
+Camera.fy: 381.36
+Camera.cx: 320.0
+Camera.cy: 240.0
+
+# Distortion parameters (Perfectly zeroed out for Gazebo simulation)
+Camera.k1: 0.0
+Camera.k2: 0.0
+Camera.p1: 0.0
+Camera.p2: 0.0
+
+# Camera resolution
+Camera.width: 640
+Camera.height: 480
+
+# Camera frames per second
+Camera.fps: 30
+
+# Color order of the images (0: BGR, 1: RGB, 2: GRAY)
+# Gazebo MONO8 outputs GRAY
+Camera.RGB: 2
+
+#--------------------------------------------------------------------------------------------
+# IMU Parameters
+#--------------------------------------------------------------------------------------------
+# These match the standard Gazebo IMU sensor noise profiles
+IMU.NoiseGyro: 1.7e-4
+IMU.NoiseAcc: 2.0e-3
+IMU.GyroWalk: 1.9393e-05
+IMU.AccWalk: 3.0e-03
+IMU.Frequency: 200
+
+# Transformation from camera to IMU (Tbc)
+# In our Gazebo SDF, the Camera is offset from the IMU by 0.2m on the X-axis
+Tbc: !!opencv-matrix
+   rows: 4
+   cols: 4
+   dt: f
+   data: [1.0, 0.0, 0.0, -0.2,
+          0.0, 1.0, 0.0,  0.0,
+          0.0, 0.0, 1.0,  0.0,
+          0.0, 0.0, 0.0,  1.0]
+
+#--------------------------------------------------------------------------------------------
+# ORB Extractor Parameters
+#--------------------------------------------------------------------------------------------
+# Number of features per image
+ORBextractor.nFeatures: 1500
+
+# Scale factor between levels in the scale pyramid
+ORBextractor.scaleFactor: 1.2
+
+# Number of levels in the scale pyramid
+ORBextractor.nLevels: 8
+
+# Fast threshold
+ORBextractor.iniThFAST: 20
+ORBextractor.minThFAST: 7
+
+#--------------------------------------------------------------------------------------------
+# Viewer Parameters
+#--------------------------------------------------------------------------------------------
+Viewer.KeyFrameSize: 0.05
+Viewer.KeyFrameLineWidth: 1.0
+Viewer.GraphLineWidth: 0.9
+Viewer.PointSize: 2.0
+Viewer.CameraSize: 0.08
+Viewer.CameraLineWidth: 3.0
+Viewer.ViewpointX: 0.0
+Viewer.ViewpointY: -0.7
+Viewer.ViewpointZ: -1.8
+Viewer.ViewpointF: 500.0
