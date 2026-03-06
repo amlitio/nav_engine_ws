@@ -8,14 +8,11 @@ import uvicorn
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-DEFAULT_STATE_FILE = "/tmp/nav_engine_state.json"
-
 app = FastAPI(
     title="NavEngine API",
-    description="Navigation engine status and topological route API",
+    description="Lightweight Vercel-ready API for navigation status and topological routing",
+    version="1.0.0",
 )
-
-STATE_FILE = DEFAULT_STATE_FILE
 
 
 class TopologicalNavigator:
@@ -33,6 +30,10 @@ class TopologicalNavigator:
             target=destination,
             weight="weight",
         )
+        return path
+
+    def navigate(self, destination: str) -> List[str]:
+        path = self.get_route(destination)
         self.current_location = destination
         return path
 
@@ -44,33 +45,29 @@ class NavigateRequest(BaseModel):
     destination: str
 
 
-def read_state() -> dict:
-    state = {
-        "active_source": "UNKNOWN",
-        "gps_variance": 0.0,
-        "gps_ok": False,
-        "health": "UNKNOWN",
-        "last_vslam_stamp": None,
+@app.get("/")
+def root():
+    return {
+        "service": "nav-engine-api",
+        "status": "ok",
+        "docs": "/docs",
     }
 
-    if os.path.exists(STATE_FILE):
-        with open(STATE_FILE, "r", encoding="utf-8") as f:
-            loaded = json.load(f)
-            state.update(loaded)
 
-    return state
+@app.get("/health")
+def health():
+    return {
+        "ok": True,
+        "service": "nav-engine-api",
+    }
 
 
 @app.get("/v1/status")
 def get_system_status():
-    state = read_state()
     return {
-        "active_navigation_source": state["active_source"],
-        "gps_variance_meters_sq": round(float(state["gps_variance"]), 2),
-        "gps_ok": bool(state["gps_ok"]),
+        "active_navigation_source": "VSLAM (demo)",
         "current_node": navigator.current_location,
-        "system_health": state["health"],
-        "last_vslam_stamp": state["last_vslam_stamp"],
+        "system_health": "OPTIMAL",
     }
 
 
@@ -89,7 +86,7 @@ def get_map():
 @app.post("/v1/navigate")
 def request_navigation(req: NavigateRequest):
     try:
-        route = navigator.get_route(req.destination)
+        route = navigator.navigate(req.destination)
     except (nx.NetworkXNoPath, nx.NodeNotFound) as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -97,22 +94,5 @@ def request_navigation(req: NavigateRequest):
         "status": "navigation_command_accepted",
         "route_calculated": route,
         "estimated_distance_nodes": len(route),
+        "destination": req.destination,
     }
-
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--state-file", default=DEFAULT_STATE_FILE)
-    parser.add_argument("--port", type=int, default=8000)
-    return parser.parse_args()
-
-
-def main():
-    global STATE_FILE
-    args = parse_args()
-    STATE_FILE = args.state_file
-    uvicorn.run(app, host="0.0.0.0", port=args.port)
-
-
-if __name__ == "__main__":
-    main()
