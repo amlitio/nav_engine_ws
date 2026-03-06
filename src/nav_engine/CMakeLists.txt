@@ -12,7 +12,13 @@ install(PROGRAMS
   ${PROJECT_NAME}/nav_engine_fusion.py
   ${PROJECT_NAME}/navigation_api.py
   ${PROJECT_NAME}/gps_jammer.py
+  #... (find_package calls)
+# Install the executable Python script
+  nav_engine/nav_engine_fusion.py
+  nav_engine/navigation_api.py  # This ensures the raw file is executable
+  nav_engine/gps_jammer.py
   DESTINATION lib/${PROJECT_NAME}
+
 )
 
 # Install launch files and Gazebo worlds
