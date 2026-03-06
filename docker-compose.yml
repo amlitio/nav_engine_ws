@@ -1,23 +1,16 @@
 version: '3.8'
-
 services:
   nav-engine:
     build:
-      context: .
+      context:.
       dockerfile: Dockerfile.jetson
     container_name: nav_engine_jetson
-    # Enables GPU passthrough on NVIDIA Jetson devices
-    runtime: nvidia 
+    runtime: nvidia
     network_mode: host
     privileged: true
     environment:
       - DISPLAY=${DISPLAY}
-      - QT_X11_NO_MITSHM=1
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=all
     volumes:
-      # Mount your local workspace so you can edit code without rebuilding the container
-      - ./nav_engine_ws:/nav_engine_ws
-      # Mount X11 socket for GUI applications (Gazebo, OpenCV windows)
+      -.:/nav_engine_ws  # Corrected mount path
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
     command: /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install && source install/setup.bash && ros2 launch nav_engine simulation_failover.launch.py"
